@@ -1,0 +1,61 @@
+---
+title: "CA1bVdVeen"
+author: "Ties van der Veen"
+date: "1-9-2019"
+output: pdf_document
+---
+
+# Group members
+## Ties van der Veen -  Niels van Opstal  - Rebecca Costello
+
+# III. Potential Outcomes
+(a) Y(0,i) = Student goes to a private school
+    Y(1,i) = Student goes to a public school
+(b) The private college could be better aligned with the preferences of the student, allowing for more potential growth and thus higher future earnings. Higher tuition for a private college could also provide the student with more opportunities to develop themselves in varying areas, due to the higher budget this college has compared to a public college.
+
+# IV. Causal Diagram
+
+(a)![Causal Diagram 1](Rplot.png)
+
+(b) 
+This variation can appear through many factors that are not closely related to earnings potential. Friends going to a certain college, experiences while visiting an open day, stories from family members that went to a certain college, etc. This assumption is probably fairly realistic, although there are certain matters included in this variation that have a much larger impact on someone's final decision. But studying these effects would require a much different set of data than what is available in this set.
+
+(c)![Causal diagram 2](Rplot2.png) Occupation could be considered a confounder, dependent on whether someone applied to a certain college to get into that occupation (which they couldn't have done if they went to a different college). What's important is that they had this occupation in mind before they selected which college they wanted to go to, and whether this choice mattered (not going to a certain college -> not getting that occupation).
+
+
+(d) SAT-scores are a test of ability. This (ability) is a confounder as discussed in (a). 
+
+# V. Descriptive statistics
+
+PrivateUni | mean_Earnings1996 |
+-----------|-------------------|
+0          |    72500          |
+1          |   92000           |
+
+# VI. Regression Analysis
+
+Call:
+lm(formula = Earnings1996 ~ PrivateUni + d_ApplicantGroup_A, 
+    data = college, subset = d_ApplicantGroup_A == 1)
+
+Residuals:
+         1          2          3 
+ 5.000e+03 -5.000e+03  1.137e-12 
+
+Coefficients: (1 not defined because of singularities)
+                   Estimate Std. Error t value Pr(>|t|)  
+(Intercept)          110000       7071  15.556   0.0409 *
+PrivateUni            -5000       8660  -0.577   0.6667  
+d_ApplicantGroup_A       NA         NA      NA       NA  
+ ---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 7071 on 1 degrees of freedom
+Multiple R-squared:   0.25,	Adjusted R-squared:   -0.5 
+F-statistic: 0.3333 on 1 and 1 DF,  p-value: 0.6667
+
+
+(a) I excluded Applicant Group B as well, since it wouldn't make sense that groups C and D are excluded but B isn't (since mixing any of those groups gives unusable results). The estimation results suggest that for this applicant group, going to a private college did not affect their future earnings.
+
+(b) The unconditional comparison overestimates the treatment effect because it compares earnings across applicant groups.
+
