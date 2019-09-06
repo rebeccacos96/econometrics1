@@ -1,0 +1,163 @@
+---
+title: "CA2a"
+author: "Ties van der Veen"
+date: "6-9-2019"
+output: pdf_document
+---
+## Rebecca Costello - Ties van der Veen - Niels van Opstal
+
+# I.Introduction to the assignment
+
+## Packages
+```{r}
+options(repos="https://cran.rstudio.com")
+install.packages("jtools")
+install.packages("huxtable")
+install.packages("ggstance")
+install.packages("summarytools")
+install.packages("pwr")
+install.packages("knitr")
+install.packages("lemon")
+```
+
+```{r}
+library(foreign)
+library(tidyverse)
+library(ggdag)
+library(dplyr)
+library(tinytex)
+library(jtools)
+library(huxtable)
+library(summarytools)
+library(ggstance)
+library(pwr)
+library(knitr)
+library(lemon)
+```
+
+```{r}
+knit_print.data.frame <- lemon_print
+```
+
+```{r}
+st_options(plain.ascii = FALSE, style = "rmarkdown")
+st_css()
+```
+
+## Data
+
+```{r}
+theUrl_ca2a <- "https://surfdrive.surf.nl/files/index.php/s/ULZJ0bBbphCttpG/download"
+
+students <- read.dta (file = theUrl_ca2a)
+```
+
+# II. Potential outcomes
+
+(a) Y(0,i) = asked for risk perception, then recall the last instance of bicycle theft
+    Y(1,i) = asked to recall last instance of bicycle theft, then risk perception
+(b) Their perception of bicycle theft could be affected because they were reminded of the last time this happened. This makes the memory more salient, which makes them consider the risk more readily.
+
+# III. Descriptive statistics
+
+```{r}
+summary(students)
+```
+
+```{r}
+summary(students$perception_person_low)
+```
+
+```{r}
+ggplot(students, aes(x=as.factor(perception_person_low)))+
+  geom_histogram(stat="count")+
+  labs(x='perception', y='count', title='Perception bicycle theft risk is low')
+```
+
+```{r}
+summary(is.na(students$perception_person_low))
+```
+
+# IV. Balance check
+
+```{r}
+ctable(students$treatment, students$female)
+```
+
+```{r}
+ctable(students$treatment, students$international)
+```
+
+```{r}
+ctable(students$treatment, students$moved_notrecent)
+```
+
+```{r}
+ctable(students$treatment, students$age20)
+```
+
+```{r}
+t.test(students$female~students$treatment)
+```
+
+# VI. Statistical power
+
+```{r}
+students %>%
+  filter(treatment==0) %>%
+  summarise(mean=mean(perception_person_low), sd=sd(perception_person_low))
+```
+
+```{r}
+pwr.t.test(n = NULL, d = 0.2, sig.level = 0.05, power = 0.8, type = c("two.sample"), alternative="two.sided")
+```
+
+```{r}
+pwr.t.test(n = 92, d = 0.2, sig.level = 0.05, power = NULL, type = c("two.sample"), alternative="two.sided")
+```
+
+# VI. Estimating treatment effect in a randomized trial
+
+(a)
+```{r}
+students_peek <- students %>% group_by(treatment) %>%
+  summarise(perception_person_low_mean=mean(perception_person_low))
+students_peek
+```
+
+```{r}
+ggplot(students_peek, aes(y=perception_person_low_mean, x=as.factor(treatment))) + geom_bar(stat='identity', fill='darkblue') + labs(x='Treatment', y='share with low perceived theft risk', title='Having a low perceived theft risk by treatment status')
+```
+
+The graph suggests that the control group has more people with a low perception of theft risk.
+
+(b) Y = a + B*treatment + e
+
+(c)
+```{r}
+reg1 <- lm(perception_person_low ~ treatment, data=students)
+summ(reg1, confint=TRUE)
+```
+
+```{r}
+treatment_effect <- c("Treatment_effect"="treatment")
+plot_summs(reg1, scale = TRUE, coefs = treatment_effect, plot.distributions = TRUE)
+```
+
+(d) Yes. The regression shows that p = 0.03, so we can reject the null hypothesis at 5% confidence level.
+
+(e) The regression results suggest a lower perception of bicycle theft for those who were reminded of bicycle theft as compared to those who were not.
+
+(f) One can check this the following way: (Estimated treatment effect) / (baseline mean of outcome variable) * 100%. In this case: -0.15/0.2525253*100% = -59.4%. Thus, the treatment effect seems to be rather large.
+
+(g) R^2 in the regression is 0.02, so the size seems to be appropriate
+
+(h) No, because the random selection into control/treatment accounted for this (control also has people who have never had their bike stolen).
+
+
+
+
+
+
+
+
