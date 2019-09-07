@@ -1,0 +1,127 @@
+---
+title: "CA2bVdVeen"
+author: "Ties van der Veen"
+date: "7-9-2019"
+output: pdf_document
+---
+
+## Rebecca Costello - Ties van der Veen - Niels van Opstal
+
+# I. Introduction to the assignment
+
+```{r}
+library(foreign)
+library(tidyverse)
+library(ggdag)
+library(dplyr)
+library(tinytex)
+library(jtools)
+library(huxtable)
+library(summarytools)
+library(ggstance)
+library(pwr)
+library(knitr)
+library(lemon)
+```
+
+```{r}
+knit_print.data.frame <- lemon_print
+```
+
+```{r}
+st_options(plain.ascii = FALSE, style = "rmarkdown")
+st_css()
+```
+
+```{r}
+theUrl_ca2b <- "https://surfdrive.surf.nl/files/index.php/s/DOGvC9BFm945QF1/download"
+
+airbnb <- read.dta (file = theUrl_ca2b)
+```
+
+# II. What to submit
+
+(1) Y(0,i) = guest with a non-African American name
+    Y(1,i) = guest with a distinctly African American name
+The name of a guest may influence the chance of being accepted by a host through influences of hearsay, negative experiences, slight racism, or just safety in known names.
+
+(2) (a)
+
+```{r}
+ggplot(airbnb, aes(x=as.factor(yes)))+
+  geom_histogram(stat='count')+
+  labs(x='outcome', y='count', title='guest acceptance statistics (1=accepted)')
+```
+
+(b) 
+
+```{r}
+summary(airbnb$yes)
+```
+
+(3) 
+```{r}
+ctable(airbnb$yes, airbnb$guest_black)
+```
+
+```{r}
+ctable(airbnb$yes, airbnb$host_gender_M)
+```
+
+```{r}
+t.test(airbnb$host_gender_M~airbnb$guest_black)
+```
+
+(4) 
+
+```{r}
+airbnb %>%
+  filter(guest_black==0) %>%
+  summarise(mean=mean(yes, na.rm=TRUE), sd=sd(yes, na.rm=TRUE))
+```
+ Calculate d by taking the percentage-point change of 5% that we assume to be the minimum effect, and divide this by the standard deviation of the outcome: 0.05/0.5 = 0.1. Thus our d will be 0.1.
+ 
+```{r}
+pwr.t.test(n = NULL, d = 0.1, sig.level = 0.05, power = 0.8,
+           type = c("two.sample"), alternative="two.sided")
+```
+ 
+ Thus the minimum sample size (n) is 1571 (per group)
+ 
+
+(5) 
+```{r}
+airbnb_peek <- airbnb %>% group_by(guest_black) %>%
+  summarise(yes_mean=mean(yes, na.rm=TRUE))
+airbnb_peek
+```
+
+```{r}
+ggplot(airbnb_peek, aes(y=yes_mean, x=as.factor(guest_black))) + geom_bar(stat='identity', fill='darkblue') + labs(x='guest black', y='accepted', title='Being accepted on condition of being black')
+```
+ 
+ (6)
+ 
+```{r}
+reg2b1 <- lm(yes ~ guest_black, data=airbnb)
+summ(reg2b1, confint=TRUE)
+```
+ 
+```{r}
+reg2b2 <- lm(yes ~ guest_black + host_race_black + host_gender_M, data=airbnb)
+summ(reg2b2, confint=FALSE)
+```
+
+```{r}
+reg2b3 <- lm(yes ~ guest_black + host_race_black + host_gender_M + multiple_listings +
+               shared_property + ten_reviews + log_price, data=airbnb)
+summ(reg2b3, confint=TRUE)
+```
+ 
+ The regression results suggest a lower acceptance rate for those who are african american as compared to those who are not. This result does seem to be small on its own however, with an estimate of -0.09. Comparatively, it is bigger than the 5% minimum effect rate that we assumed earlier, so the result is large when related to that number.
+ 
+ 
+ 
+
+
+
