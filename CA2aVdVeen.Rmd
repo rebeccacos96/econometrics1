@@ -56,6 +56,12 @@ students <- read.dta (file = theUrl_ca2a)
 
 (a) Y(0,i) = asked for risk perception, then recall the last instance of bicycle theft
     Y(1,i) = asked to recall last instance of bicycle theft, then risk perception
+    
+RC: I think the above is wrong, should be somthing like this:
+(a) Define the two potential outcomes for a particular student, Y(0,i) and Y(1,i).
+Y(0,i) = Risk perceptions remain the same
+T(1,i) = Risk perceptions changes. 
+
 (b) Their perception of bicycle theft could be affected because they were reminded of the last time this happened. This makes the memory more salient, which makes them consider the risk more readily.
 
 # III. Descriptive statistics
@@ -132,6 +138,7 @@ ggplot(students_peek, aes(y=perception_person_low_mean, x=as.factor(treatment)))
 The graph suggests that the control group has more people with a low perception of theft risk.
 
 (b) Y = a + B*treatment + e
+RC: should be like this (b) perception_persons_low = Beta_{0} + /beta_{1}*Treatment + error
 
 (c)
 ```{r}
@@ -145,6 +152,10 @@ plot_summs(reg1, scale = TRUE, coefs = treatment_effect, plot.distributions = TR
 ```
 
 (d) Yes. The regression shows that p = 0.03, so we can reject the null hypothesis at 5% confidence level.
+RC: you should never report the p value - it should say.
+Yes, the treatment has a statistically significant effect on the outcome variable at a 5% confidence level.
+
+
 
 (e) The regression results suggest a lower perception of bicycle theft for those who were reminded of bicycle theft as compared to those who were not.
 
